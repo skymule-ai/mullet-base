@@ -1,6 +1,6 @@
 # mullet_ros_base
 
-Base ROS 2 Humble layer for ARM64 with PX4 ROS 2 packages prebuilt.
+Base ROS 2 Humble layer for ARM64 with PX4 ROS 2 packages prebuilt and Micro XRCE DDS Agent installed.
 
 ## Build locally
 
@@ -28,6 +28,11 @@ Edit `repos/ros2.repos`, then rebuild:
 ```bash
 docker compose build
 ```
+
+## Included software
+
+- PX4 ROS 2 packages from `repos/ros2.repos`
+- Micro XRCE DDS Agent v2.4.2 (system-wide)
 
 ## Add extra apt packages
 

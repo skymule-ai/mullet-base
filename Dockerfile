@@ -29,6 +29,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       build-essential \
       ca-certificates \
+      cmake \
       curl \
       git \
       python3-pip \
@@ -47,7 +48,23 @@ RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then \
     rosdep update
 
 # -----------------------------
-# 4. Workspace setup
+# 4. Micro XRCE DDS Agent
+# -----------------------------
+WORKDIR /opt
+
+RUN git clone -b v2.4.2 https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && \
+    cd Micro-XRCE-DDS-Agent && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
+    cd /opt && \
+    rm -rf /opt/Micro-XRCE-DDS-Agent
+
+# -----------------------------
+# 5. Workspace setup
 # -----------------------------
 WORKDIR /opt/ros2_base_ws
 
@@ -57,14 +74,14 @@ RUN mkdir -p /opt/ros2_base_ws/src && \
     vcs import /opt/ros2_base_ws/src < /opt/ros2_base_ws/ros2.repos
 
 # -----------------------------
-# 5. Build workspace
+# 6. Build workspace
 # -----------------------------
 RUN source /opt/ros/humble/install/setup.bash && \
     rosdep install --from-paths /opt/ros2_base_ws/src --ignore-src -r -y && \
     colcon build --merge-install
 
 # -----------------------------
-# 6. Environment setup
+# 7. Environment setup
 # -----------------------------
 RUN echo "source /opt/ros/humble/install/setup.bash" >> /etc/bash.bashrc && \
     echo "source /opt/ros2_base_ws/install/setup.bash" >> /etc/bash.bashrc
