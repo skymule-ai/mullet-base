@@ -15,7 +15,7 @@ RUN apt-get update || true && \
 # Replace ROS2 key with current official key
 RUN mkdir -p /usr/share/keyrings && \
     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | \
-    gpg --dearmor -o /usr/share/keyrings/ros-archive-keyring.gpg
+    tee /usr/share/keyrings/ros-archive-keyring.gpg > /dev/null
 
 # Re-add ROS2 repository with correct signing method
 RUN rm -f /etc/apt/sources.list.d/ros2*.list || true && \
