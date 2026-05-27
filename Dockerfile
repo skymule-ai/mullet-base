@@ -59,14 +59,14 @@ RUN mkdir -p /opt/ros2_base_ws/src && \
 # -----------------------------
 # 5. Build workspace
 # -----------------------------
-RUN source /opt/ros/humble/setup.bash && \
+RUN source /opt/ros/humble/install/setup.bash && \
     rosdep install --from-paths /opt/ros2_base_ws/src --ignore-src -r -y && \
     colcon build --merge-install
 
 # -----------------------------
 # 6. Environment setup
 # -----------------------------
-RUN echo "source /opt/ros/humble/setup.bash" >> /etc/bash.bashrc && \
+RUN echo "source /opt/ros/humble/install/setup.bash" >> /etc/bash.bashrc && \
     echo "source /opt/ros2_base_ws/install/setup.bash" >> /etc/bash.bashrc
 
 CMD ["bash"]
