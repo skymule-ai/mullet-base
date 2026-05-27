@@ -52,11 +52,11 @@ RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then \
 # -----------------------------
 WORKDIR /opt
 
-COPY patches/micro-xrce-dds-agent.patch /opt/micro-xrce-dds-agent.patch
+COPY patches/CMakeLists.txt /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt
 
 RUN git clone -b v2.4.2 https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && \
     cd Micro-XRCE-DDS-Agent && \
-    git apply /opt/micro-xrce-dds-agent.patch && \
+    cp /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt /opt/Micro-XRCE-DDS-Agent/CMakeLists.txt && \
     mkdir build && \
     cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
@@ -64,7 +64,7 @@ RUN git clone -b v2.4.2 https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && 
     make install && \
     ldconfig && \
     cd /opt && \
-    rm -rf /opt/Micro-XRCE-DDS-Agent /opt/micro-xrce-dds-agent.patch
+    rm -rf /opt/Micro-XRCE-DDS-Agent /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt
 
 # -----------------------------
 # 5. Workspace setup

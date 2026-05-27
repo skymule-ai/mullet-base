@@ -33,6 +33,7 @@ docker compose build
 
 - PX4 ROS 2 packages from `repos/ros2.repos`
 - Micro XRCE DDS Agent v2.4.2 (system-wide)
+- Micro XRCE DDS Agent uses patched `CMakeLists.txt` from `patches/CMakeLists.txt`
 
 ## Add extra apt packages
 
