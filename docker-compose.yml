@@ -24,5 +24,6 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /dev:/dev:rw
+      - ./ws:/ws:rw
     command: ["bash"]
     network_mode: host
