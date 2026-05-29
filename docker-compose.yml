@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/skymule-ai/mullet-ros2-base:latest
+    image: ghcr.io/skymule-ai/mullet-ros2-base:main
     container_name: mullet-ros2-base
     privileged: true
     shm_size: "2g"
