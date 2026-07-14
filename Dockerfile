@@ -61,13 +61,14 @@ RUN git clone --depth 1 --branch ${UXRCE_AGENT_VERSION} \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc) && \
     make install && \
+    ldconfig && \
     cd /opt && \
     rm -rf Micro-XRCE-DDS-Agent Micro-XRCE-DDS-Agent-CMakeLists.txt
 
     # tests
 RUN source /opt/ros2_base_ws/install/setup.bash && \
-    ros2 pkg prefix px4_msgs && \
-    MicroXRCEAgent --help > /dev/null
+    ros2 pkg prefix px4_msgs
+RUN MicroXRCEAgent udp4 --help > /dev/null
 
 COPY scripts/entrypoint.sh /usr/local/bin/mullet-ros-entrypoint
 COPY scripts/smoke-test.sh tests/cuda_smoke.cu /usr/local/share/mullet-ros/
