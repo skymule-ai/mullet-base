@@ -1,62 +1,61 @@
-FROM dustynv/ros:humble-ros-base-l4t-r36.3.0
+# Target platform: Jetson Orin Nano running JetPack 6.2.2 / L4T R36.5.
+# The NVIDIA Container Toolkit on the host supplies the Jetson driver stack at
+# runtime. CUDA tooling is installed here so downstream ROS images can compile
+# and run CUDA-enabled packages.
+FROM ros:humble-ros-base-jammy
 
-SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG DEBIAN_FRONTEND=noninteractive
+ARG CUDA_VERSION=12.6
+ARG UXRCE_AGENT_VERSION=v2.4.2
 
-# -----------------------------
-# 1. Fix broken ROS apt key (EXPKEYSIG issue)
-# -----------------------------
-RUN apt-get update || true && \
-    apt-get install -y --no-install-recommends \
-      curl \
-      gnupg \
-      ca-certificates
+ENV CUDA_HOME=/usr/local/cuda \
+    PATH=/usr/local/cuda/bin:${PATH} \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 
-# Replace ROS2 key with current official key
-RUN mkdir -p /usr/share/keyrings && \
-    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | \
-    tee /usr/share/keyrings/ros-archive-keyring.gpg > /dev/null
-
-# Re-add ROS2 repository with correct signing method
-RUN rm -f /etc/apt/sources.list.d/ros2*.list || true && \
-    echo "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main" \
-    > /etc/apt/sources.list.d/ros2.list
-
-# -----------------------------
-# 2. Now safe apt-get install
-# -----------------------------
+# CUDA 12.6 is the CUDA version shipped with JetPack 6.2.2.  Use NVIDIA's
+# ARM64 Ubuntu 22.04 repository; do not install a CUDA driver in the image.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      build-essential \
       ca-certificates \
-      cmake \
       curl \
+      gpg && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/arm64/cuda-keyring_1.1-1_all.deb \
+      -o /tmp/cuda-keyring.deb && \
+    dpkg -i /tmp/cuda-keyring.deb && \
+    rm /tmp/cuda-keyring.deb && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+      build-essential \
+      cmake \
+      cuda-toolkit-${CUDA_VERSION/./-} \
       git \
       python3-pip \
-      python3-rosdep \
-      python3-vcstool \
-      python3-colcon-common-extensions \
       vim && \
     rm -rf /var/lib/apt/lists/*
 
-# -----------------------------
-# 3. rosdep setup (safe)
-# -----------------------------
-RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then \
-      rosdep init; \
-    fi && \
-    rosdep update
+# The official ROS image already initialises rosdep. Updating its database here
+# makes dependency resolution reproducible at image-build time.
+RUN rosdep update
 
-# -----------------------------
-# 4. Micro XRCE DDS Agent
-# -----------------------------
+# PX4 ROS workspace
+WORKDIR /opt/ros2_base_ws
+COPY repos/ros2.repos ros2.repos
+
+RUN mkdir -p src && \
+    vcs import src < ros2.repos && \
+    source /opt/ros/humble/setup.bash && \
+    rosdep install --from-paths src --ignore-src -r -y && \
+    colcon build --merge-install
+
+# Micro XRCE-DDS Agent
 WORKDIR /opt
-
 COPY patches/CMakeLists.txt /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt
 
-RUN git clone -b v2.4.2 https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && \
+RUN git clone --depth 1 --branch ${UXRCE_AGENT_VERSION} \
+      https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && \
     cd Micro-XRCE-DDS-Agent && \
-    cp /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt /opt/Micro-XRCE-DDS-Agent/CMakeLists.txt && \
+    cp /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt CMakeLists.txt && \
     mkdir build && \
     cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
@@ -64,29 +63,17 @@ RUN git clone -b v2.4.2 https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && 
     make install && \
     ldconfig && \
     cd /opt && \
-    rm -rf /opt/Micro-XRCE-DDS-Agent /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt
+    rm -rf Micro-XRCE-DDS-Agent Micro-XRCE-DDS-Agent-CMakeLists.txt
 
-# -----------------------------
-# 5. Workspace setup
-# -----------------------------
-WORKDIR /opt/ros2_base_ws
+    # tests
+RUN source /opt/ros2_base_ws/install/setup.bash && \
+    ros2 pkg prefix px4_msgs
+RUN MicroXRCEAgent udp4 --help > /dev/null
 
-COPY repos/ros2.repos /opt/ros2_base_ws/ros2.repos
+COPY scripts/entrypoint.sh /usr/local/bin/mullet-ros-entrypoint
+COPY scripts/smoke-test.sh tests/cuda_smoke.cu /usr/local/share/mullet-ros/
+RUN chmod 0755 /usr/local/bin/mullet-ros-entrypoint \
+    /usr/local/share/mullet-ros/smoke-test.sh
 
-RUN mkdir -p /opt/ros2_base_ws/src && \
-    vcs import /opt/ros2_base_ws/src < /opt/ros2_base_ws/ros2.repos
-
-# -----------------------------
-# 6. Build workspace
-# -----------------------------
-RUN source /opt/ros/humble/install/setup.bash && \
-    rosdep install --from-paths /opt/ros2_base_ws/src --ignore-src -r -y && \
-    colcon build --merge-install
-
-# -----------------------------
-# 7. Environment setup
-# -----------------------------
-RUN echo "source /opt/ros/humble/install/setup.bash" >> /etc/bash.bashrc && \
-    echo "source /opt/ros2_base_ws/install/setup.bash" >> /etc/bash.bashrc
-
+ENTRYPOINT ["/usr/local/bin/mullet-ros-entrypoint"]
 CMD ["bash"]
