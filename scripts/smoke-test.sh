@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ros2 pkg prefix px4_msgs
-MicroXRCEAgent --help > /dev/null
+MicroXRCEAgent udp4 --help > /dev/null
 nvcc --version
 
 test_dir=$(mktemp -d)
