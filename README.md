@@ -76,8 +76,8 @@ docker compose run --rm ros2-base
 ## 📥 Pull on Jetson
 
 ```bash
-docker pull ghcr.io/skymule-ai/mullet-ros2-base:main
-docker compose run --rm ros2-base
+MULLET_ROS_IMAGE_TAG=main docker compose pull ros2-base
+MULLET_ROS_IMAGE_TAG=main docker compose run --rm ros2-base
 ```
 
 For a released image, replace `main` with an immutable Git tag such as `v0.1.0`.
