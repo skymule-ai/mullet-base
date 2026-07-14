@@ -61,8 +61,10 @@ RUN mkdir -p src && \
     vcs import src < ros2.repos && \
     source /opt/ros/humble/setup.bash && \
     rosdep install --from-paths src --ignore-src -r -y && \
-    colcon build --merge-install && \
-    source install/setup.bash && \
+    colcon build --merge-install
+
+# tests
+RUN /opt/ros2_base_ws/source/install/setup.bash && \
     ros2 pkg prefix px4_msgs && \
     MicroXRCEAgent --help > /dev/null
 
