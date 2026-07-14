@@ -2,8 +2,5 @@ repositories:
   px4_msgs:
     type: git
     url: https://github.com/PX4/px4_msgs.git
+    # PX4 v1.17 message definitions. This follows the maintained release line.
     version: release/1.17
-  px4_ros_com:
-    type: git
-    url: https://github.com/PX4/px4_ros_com.git
-    version: main

@@ -17,14 +17,14 @@ This repository currently targets one platform:
 
 The Jetson host must have the NVIDIA Container Toolkit configured. The container uses the host driver stack and includes CUDA development tooling for downstream packages.
 
-This image provides a ready-to-use ROS 2 environment with prebuilt PX4 ROS packages and Micro XRCE DDS Agent already installed, reducing setup time and ensuring reproducible deployments across development machines and robots.
+This image provides a ready-to-use ROS 2 environment with the PX4 ROS message interfaces and Micro XRCE-DDS Agent already installed, reducing setup time and ensuring reproducible deployments across development machines and robots.
 
 ---
 
 ## ✨ Features
 
 - 🤖 ROS 2 Humble for ARM64
-- 🚁 Prebuilt PX4 ROS 2 packages
+- 🚁 Prebuilt PX4 ROS message interfaces (`px4_msgs`)
 - 📡 Micro XRCE DDS Agent v2.4.2 installed system-wide
 - ⚡ Optimized for NVIDIA Jetson platforms
 - 🐳 Reproducible Docker-based workflow
@@ -127,7 +127,7 @@ docker compose build
 
 ## 📦 Included software
 
-### 🚁 PX4 ROS 2 packages
+### 🚁 PX4 ROS message interfaces
 
 Installed from:
 
@@ -135,7 +135,7 @@ Installed from:
 repos/ros2.repos
 ```
 
-This allows version pinning and reproducible builds across robots and CI pipelines.
+`px4_msgs` follows the PX4 `release/1.17` branch. Update this reference only together with the PX4 firmware message definitions used by the flight controller. Pin a commit SHA here later if strict bit-for-bit rebuild reproducibility becomes necessary.
 
 ### 📡 Micro XRCE DDS Agent
 
