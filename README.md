@@ -1,6 +1,21 @@
 # 🚀 mullet_ros_base
 
-High-performance ARM64 ROS 2 Humble base image for NVIDIA Jetson devices, designed for PX4, MAVLink, and robotics development.
+Developer-friendly ARM64 ROS 2 Humble base image for NVIDIA Jetson devices, designed for PX4, MAVLink, CUDA-enabled robotics, and downstream sensor drivers.
+
+## Platform target
+
+This repository currently targets one platform:
+
+| Component | Version |
+| --- | --- |
+| Hardware | NVIDIA Jetson Orin Nano |
+| JetPack | 6.2.2 |
+| Jetson Linux / L4T | R36.5.0 |
+| Ubuntu | 22.04 |
+| ROS 2 | Humble |
+| CUDA toolkit | 12.6 |
+
+The Jetson host must have the NVIDIA Container Toolkit configured. The container uses the host driver stack and includes CUDA development tooling for downstream packages.
 
 This image provides a ready-to-use ROS 2 environment with prebuilt PX4 ROS packages and Micro XRCE DDS Agent already installed, reducing setup time and ensuring reproducible deployments across development machines and robots.
 
@@ -56,20 +71,41 @@ docker compose build
 docker compose run --rm ros2-base
 ```
 
-Or launch the full stack in detached mode:
-
-```bash
-docker compose up -d
-```
-
 ---
 
 ## 📥 Pull on Jetson
 
 ```bash
-docker pull ghcr.io/skymule-ai/mullet-ros2-base:latest
-docker compose up -d
+docker pull ghcr.io/skymule-ai/mullet-ros2-base:main
+docker compose run --rm ros2-base
 ```
+
+For a released image, replace `main` with an immutable Git tag such as `v0.1.0`.
+
+## Test a CI image on the Orin
+
+Every push to GitHub publishes an immutable image tag in the form `sha-<short-commit-sha>`.
+After the workflow succeeds, use that tag on the Jetson without rebuilding locally:
+
+```bash
+git clone git@github.com:skymule-ai/mullet_ros_base.git
+cd mullet_ros_base
+cp .env.example .env
+./scripts/test-on-orin.sh sha-<short-commit-sha>
+```
+
+The smoke test validates ROS/PX4 package availability, Micro XRCE-DDS Agent, CUDA compilation, and CUDA device visibility. The Jetson needs permission to pull the GHCR package: use `docker login ghcr.io` with a GitHub token that has `read:packages` if the package is private.
+
+## Development and release workflow
+
+1. Create a feature branch, for example `feat/r36.5-cuda-base`.
+2. Push it to GitHub. CI builds and publishes a test image tagged `sha-<short-commit-sha>`.
+3. Run `./scripts/test-on-orin.sh sha-<short-commit-sha>` on an Orin with the target JetPack version.
+4. Open a pull request only after the Orin smoke test passes. The pull request runs an ARM64 build but does not publish an image.
+5. Merge the pull request into `main`. CI publishes `:main` and a new immutable SHA image.
+6. Create and push a Git tag such as `v0.1.0` only for an image that has passed hardware validation. CI publishes the matching `:v0.1.0` image.
+
+`main` is a continuously tested integration image. Deploy drones from an immutable release tag, never from `main`.
 
 ---
 
@@ -120,7 +156,7 @@ It is recommended to keep this base image minimal and stable.
 For project-specific dependencies, create a downstream image:
 
 ```Dockerfile
-FROM ghcr.io/skymule-ai/mullet-ros2-base:latest
+FROM ghcr.io/skymule-ai/mullet-ros2-base:v0.1.0
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
@@ -151,5 +187,3 @@ If additional packages are required globally, add them directly to the base `Doc
 4. Use GitHub Actions to automatically build and publish images to GHCR
 
 This keeps deployments reproducible across development PCs, Jetson devices, and CI runners.
-
-

@@ -1,29 +1,21 @@
-version: "3.9"
-
 services:
   ros2-base:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/skymule-ai/mullet-ros2-base:main
+    image: ghcr.io/skymule-ai/mullet-ros2-base:${MULLET_ROS_IMAGE_TAG:-main}
     container_name: mullet-ros2-base
-    privileged: true
     shm_size: "2g"
     stdin_open: true
     tty: true
-    restart: unless-stopped
     runtime: nvidia
     environment:
-      - DISPLAY=${DISPLAY}
-      - QT_X11_NO_MITSHM=1
       - NVIDIA_DISABLE_REQUIRE=1
       - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
-      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
       - RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}
     volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /dev:/dev:rw
       - ./ws:/ws:rw
     command: ["bash"]
     network_mode: host
