@@ -38,21 +38,6 @@ RUN apt-get update && \
 # makes dependency resolution reproducible at image-build time.
 RUN rosdep update
 
-# Micro XRCE-DDS Agent
-WORKDIR /opt
-COPY patches/CMakeLists.txt /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt
-
-RUN git clone --depth 1 --branch ${UXRCE_AGENT_VERSION} \
-      https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && \
-    cd Micro-XRCE-DDS-Agent && \
-    cp /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt CMakeLists.txt && \
-    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && \
-    cmake --build build --parallel "$(nproc)" && \
-    cmake --install build && \
-    ldconfig && \
-    cd /opt && \
-    rm -rf Micro-XRCE-DDS-Agent Micro-XRCE-DDS-Agent-CMakeLists.txt
-
 # PX4 ROS workspace
 WORKDIR /opt/ros2_base_ws
 COPY repos/ros2.repos ros2.repos
@@ -63,8 +48,24 @@ RUN mkdir -p src && \
     rosdep install --from-paths src --ignore-src -r -y && \
     colcon build --merge-install
 
-# tests
-RUN /opt/ros2_base_ws/source/install/setup.bash && \
+# Micro XRCE-DDS Agent
+WORKDIR /opt
+COPY patches/CMakeLists.txt /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt
+
+RUN git clone --depth 1 --branch ${UXRCE_AGENT_VERSION} \
+      https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && \
+    cd Micro-XRCE-DDS-Agent && \
+    cp /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt CMakeLists.txt && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make -j$(nproc) && \
+    make install && \
+    cd /opt && \
+    rm -rf Micro-XRCE-DDS-Agent Micro-XRCE-DDS-Agent-CMakeLists.txt
+
+    # tests
+RUN source /opt/ros2_base_ws/install/setup.bash && \
     ros2 pkg prefix px4_msgs && \
     MicroXRCEAgent --help > /dev/null
 
