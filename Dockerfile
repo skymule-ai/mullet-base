@@ -11,7 +11,7 @@ ARG UXRCE_AGENT_VERSION=v2.4.2
 
 ENV CUDA_HOME=/usr/local/cuda \
     PATH=/usr/local/cuda/bin:${PATH} \
-    LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
 # CUDA 12.6 is the CUDA version shipped with JetPack 6.2.2.  Use NVIDIA's
 # ARM64 Ubuntu 22.04 repository; do not install a CUDA driver in the image.
@@ -45,7 +45,9 @@ COPY repos/ros2.repos ros2.repos
 RUN mkdir -p src && \
     vcs import src < ros2.repos && \
     source /opt/ros/humble/setup.bash && \
+    apt-get update && \
     rosdep install --from-paths src --ignore-src -r -y && \
+    rm -rf /var/lib/apt/lists/* && \
     colcon build --merge-install
 
 # Micro XRCE-DDS Agent
@@ -70,9 +72,12 @@ RUN source /opt/ros2_base_ws/install/setup.bash && \
     ros2 pkg prefix px4_msgs
 RUN MicroXRCEAgent udp4 --help > /dev/null
 
+COPY scripts/setup.bash /usr/local/share/mullet-ros/setup.bash
+COPY scripts/profile.sh /etc/profile.d/00-mullet-ros.sh
 COPY scripts/entrypoint.sh /usr/local/bin/mullet-ros-entrypoint
 COPY scripts/smoke-test.sh tests/cuda_smoke.cu /usr/local/share/mullet-ros/
-RUN chmod 0755 /usr/local/bin/mullet-ros-entrypoint \
+RUN chmod 0755 /usr/local/share/mullet-ros/setup.bash \
+    /usr/local/bin/mullet-ros-entrypoint \
     /usr/local/share/mullet-ros/smoke-test.sh
 
 ENTRYPOINT ["/usr/local/bin/mullet-ros-entrypoint"]
