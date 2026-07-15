@@ -11,7 +11,7 @@ ARG UXRCE_AGENT_VERSION=v2.4.2
 
 ENV CUDA_HOME=/usr/local/cuda \
     PATH=/usr/local/cuda/bin:${PATH} \
-    LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
 # CUDA 12.6 is the CUDA version shipped with JetPack 6.2.2.  Use NVIDIA's
 # ARM64 Ubuntu 22.04 repository; do not install a CUDA driver in the image.
