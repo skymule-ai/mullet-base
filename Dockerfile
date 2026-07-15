@@ -70,9 +70,12 @@ RUN source /opt/ros2_base_ws/install/setup.bash && \
     ros2 pkg prefix px4_msgs
 RUN MicroXRCEAgent udp4 --help > /dev/null
 
+COPY scripts/setup.bash /usr/local/share/mullet-ros/setup.bash
+COPY scripts/profile.sh /etc/profile.d/00-mullet-ros.sh
 COPY scripts/entrypoint.sh /usr/local/bin/mullet-ros-entrypoint
 COPY scripts/smoke-test.sh tests/cuda_smoke.cu /usr/local/share/mullet-ros/
-RUN chmod 0755 /usr/local/bin/mullet-ros-entrypoint \
+RUN chmod 0755 /usr/local/share/mullet-ros/setup.bash \
+    /usr/local/bin/mullet-ros-entrypoint \
     /usr/local/share/mullet-ros/smoke-test.sh
 
 ENTRYPOINT ["/usr/local/bin/mullet-ros-entrypoint"]
