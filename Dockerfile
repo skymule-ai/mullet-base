@@ -45,7 +45,9 @@ COPY repos/ros2.repos ros2.repos
 RUN mkdir -p src && \
     vcs import src < ros2.repos && \
     source /opt/ros/humble/setup.bash && \
+    apt-get update && \
     rosdep install --from-paths src --ignore-src -r -y && \
+    rm -rf /var/lib/apt/lists/* && \
     colcon build --merge-install
 
 # Micro XRCE-DDS Agent
