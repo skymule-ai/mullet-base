@@ -76,11 +76,11 @@ docker compose run --rm ros2-base
 ## 📥 Pull on Jetson
 
 ```bash
-docker pull ghcr.io/skymule-ai/mullet-ros2-base:main
-docker compose run --rm ros2-base
+MULLET_ROS_IMAGE_TAG=main docker compose pull ros2-base
+MULLET_ROS_IMAGE_TAG=main docker compose run --rm ros2-base
 ```
 
-For a released image, replace `main` with an immutable Git tag such as `v0.1.0`.
+For a released image, set `MULLET_ROS_IMAGE_TAG` to an immutable Git tag such as `v0.1.0` (for example, update `.env` or run `export MULLET_ROS_IMAGE_TAG=v0.1.0`).
 
 ## Test a CI image on the Orin
 
