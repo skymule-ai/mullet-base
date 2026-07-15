@@ -1,2 +1,4 @@
 # shellcheck shell=bash
-source /usr/local/share/mullet-ros/setup.bash
+if [ -n "${BASH_VERSION-}" ]; then
+  source /usr/local/share/mullet-ros/setup.bash
+fi
