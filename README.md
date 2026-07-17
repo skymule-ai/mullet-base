@@ -53,20 +53,26 @@ sudo reboot
 ````
 
 After the reboot, the UART interface will be ready on the host as
-`/dev/ttyTHS1`. The Compose service passes this device through to the
-container at the same path, so start it normally:
+`/dev/ttyTHS1`. Enable UART pass-through only on Jetson by including the
+Jetson override file when you start Compose:
 
 ```bash
-MULLET_ROS_IMAGE_TAG=main docker compose run --rm ros2-base
+MULLET_ROS_IMAGE_TAG=main docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.jetson.yml \
+  run --rm ros2-base
 ```
 
-The mapping is configured by `MULLET_UART_DEVICE` (default:
+The mapping in `docker-compose.jetson.yml` is configured by `MULLET_UART_DEVICE` (default:
 `/dev/ttyTHS1`) and needs no image rebuild after pulling a published image.
 For a differently named host UART, set it before starting Compose; it still
 appears in the container as `/dev/ttyTHS1`:
 
 ```bash
-MULLET_UART_DEVICE=/dev/ttyUSB0 docker compose run --rm ros2-base
+MULLET_UART_DEVICE=/dev/ttyUSB0 docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.jetson.yml \
+  run --rm ros2-base
 ```
 
 For a direct `docker run` invocation instead of Compose, pass the device
