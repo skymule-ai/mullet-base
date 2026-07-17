@@ -17,5 +17,7 @@ services:
       - RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}
     volumes:
       - ./ws:/ws:rw
+    devices:
+      - ${MULLET_UART_DEVICE:-/dev/ttyTHS1}:/dev/ttyTHS1
     command: ["bash"]
     network_mode: host

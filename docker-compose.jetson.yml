@@ -1,6 +1,0 @@
-services:
-  ros2-base:
-    # UART devices belong to the Jetson host. Pass the configured host device
-    # through when the container is created; it cannot be baked into the image.
-    devices:
-      - ${MULLET_UART_DEVICE:-/dev/ttyTHS1}:/dev/ttyTHS1
