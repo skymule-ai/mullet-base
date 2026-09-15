@@ -1,6 +1,6 @@
 # 🚀 mullet_ros_base
 
-Developer-friendly ARM64 ROS 2 Humble base image for NVIDIA Jetson devices, designed for PX4, MAVLink, CUDA-enabled robotics, and downstream sensor drivers.
+Developer-friendly ARM64 ROS 2 Jazzy base image for NVIDIA Jetson devices, designed for PX4, MAVLink, CUDA-enabled robotics, and downstream sensor drivers.
 
 ## Platform target
 
@@ -9,13 +9,16 @@ This repository currently targets one platform:
 | Component | Version |
 | --- | --- |
 | Hardware | NVIDIA Jetson Orin Nano |
-| JetPack | 6.2.2 |
-| Jetson Linux / L4T | R36.5.0 |
-| Ubuntu | 22.04 |
-| ROS 2 | Humble |
-| CUDA toolkit | 12.6 |
+| JetPack (host) | 6.2.2 |
+| Jetson Linux / L4T (host) | R36.5.0 |
+| Ubuntu (image) | 24.04 |
+| ROS 2 | Jazzy |
+| CUDA toolkit | 13.2 + `cuda-compat-orin-13-2` |
+| PX4 messages | `px4_msgs` `release/1.17` (Pixhawks on PX4 1.17.x) |
 
-The Jetson host must have the NVIDIA Container Toolkit configured. The container uses the host driver stack and includes CUDA development tooling for downstream packages.
+The Jetson host must have the NVIDIA Container Toolkit configured. The container uses the host driver stack and includes CUDA development tooling for downstream packages. Ubuntu 24.04 has no CUDA 12.6 for this board, so the image ships the CUDA 13.2 toolkit plus NVIDIA's `cuda-compat-orin` user-space driver (first on `LD_LIBRARY_PATH`), which runs CUDA 13 on the JetPack 6 kernel driver without reflashing.
+
+Images up to `v0.4.0` are ROS 2 Humble (Ubuntu 22.04, CUDA 12.6); images from `v0.5.0` are Jazzy. Downstream images pin a tag, so they move when they choose.
 
 This image provides a ready-to-use ROS 2 environment with the PX4 ROS message interfaces and Micro XRCE-DDS Agent already installed, reducing setup time and ensuring reproducible deployments across development machines and robots.
 
@@ -23,7 +26,7 @@ This image provides a ready-to-use ROS 2 environment with the PX4 ROS message in
 
 ## ✨ Features
 
-- 🤖 ROS 2 Humble for ARM64
+- 🤖 ROS 2 Jazzy for ARM64
 - 🚁 Prebuilt PX4 ROS message interfaces (`px4_msgs`)
 - 📡 Micro XRCE DDS Agent v2.4.2 installed system-wide
 - ⚡ Optimized for NVIDIA Jetson platforms
