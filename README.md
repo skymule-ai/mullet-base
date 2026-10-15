@@ -1,4 +1,4 @@
-# 🚀 mullet_ros_base
+# mullet-base
 
 Developer-friendly ARM64 ROS 2 Jazzy base image for NVIDIA Jetson devices, designed for PX4, MAVLink, CUDA-enabled robotics, and downstream sensor drivers.
 
@@ -121,8 +121,8 @@ Every push to GitHub publishes an immutable image tag in the form `sha-<short-co
 After the workflow succeeds, use that tag on the Jetson without rebuilding locally:
 
 ```bash
-git clone git@github.com:skymule-ai/mullet_ros_base.git
-cd mullet_ros_base
+git clone git@github.com:skymule-ai/mullet-base.git
+cd mullet-base
 cp .env.example .env
 ./scripts/test-on-orin.sh sha-<short-commit-sha>
 ```
