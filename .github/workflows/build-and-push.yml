@@ -36,7 +36,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/skymule-ai/mullet-ros2-base
+          images: ghcr.io/skymule-ai/mullet-base
           tags: |
             type=ref,event=branch
             type=ref,event=tag

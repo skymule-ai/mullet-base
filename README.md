@@ -84,7 +84,7 @@ explicitly:
 ```bash
 docker run --rm -it --runtime nvidia --network host \
   --device /dev/ttyTHS1:/dev/ttyTHS1 \
-  ghcr.io/skymule-ai/mullet-ros2-base:main
+  ghcr.io/skymule-ai/mullet-base:main
 ```
 
 
@@ -189,7 +189,7 @@ It is recommended to keep this base image minimal and stable.
 For project-specific dependencies, create a downstream image:
 
 ```Dockerfile
-FROM ghcr.io/skymule-ai/mullet-ros2-base:v0.1.0
+FROM ghcr.io/skymule-ai/mullet-base:v0.5.1
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
