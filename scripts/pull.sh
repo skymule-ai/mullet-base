@@ -2,4 +2,4 @@
 set -e
 
 image_tag=${1:-main}
-docker pull ghcr.io/skymule-ai/mullet-ros2-base:${image_tag}
+docker pull ghcr.io/skymule-ai/mullet-base:${image_tag}

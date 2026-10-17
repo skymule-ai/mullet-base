@@ -3,8 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/skymule-ai/mullet-ros2-base:${MULLET_ROS_IMAGE_TAG:-main}
-    container_name: mullet-ros2-base
+    image: ghcr.io/skymule-ai/mullet-base:${MULLET_ROS_IMAGE_TAG:-main}
+    container_name: mullet-base
     shm_size: "2g"
     stdin_open: true
     tty: true
