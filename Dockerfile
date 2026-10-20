@@ -75,6 +75,15 @@ RUN git clone --depth 1 --branch ${UXRCE_AGENT_VERSION} \
     cd /opt && \
     rm -rf Micro-XRCE-DDS-Agent Micro-XRCE-DDS-Agent-CMakeLists.txt
 
+# The agent bundles Fast DDS 2.14.7 built on fastcdr 1. ROS Jazzy ships a file of the same name
+# built on fastcdr 2, and the ROS setup puts it first on LD_LIBRARY_PATH: the agent then loads
+# ROS's copy and segfaults on the first message. Run it on its own libraries only.
+RUN mkdir -p /usr/local/libexec && \
+    mv /usr/local/bin/MicroXRCEAgent /usr/local/libexec/MicroXRCEAgent && \
+    printf '#!/bin/sh\nLD_LIBRARY_PATH=/usr/local/lib exec /usr/local/libexec/MicroXRCEAgent "$@"\n' \
+      > /usr/local/bin/MicroXRCEAgent && \
+    chmod +x /usr/local/bin/MicroXRCEAgent
+
     # tests
 RUN source /opt/ros2_base_ws/install/setup.bash && \
     ros2 pkg prefix px4_msgs
