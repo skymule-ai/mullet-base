@@ -28,7 +28,7 @@ This image provides a ready-to-use ROS 2 environment with the PX4 ROS message in
 
 - 🤖 ROS 2 Jazzy for ARM64
 - 🚁 Prebuilt PX4 ROS message interfaces (`px4_msgs`)
-- 📡 Micro XRCE DDS Agent v2.4.2 installed system-wide
+- 📡 Micro XRCE DDS Agent v2.4.3 installed system-wide
 - ⚡ Optimized for NVIDIA Jetson platforms
 - 🐳 Reproducible Docker-based workflow
 - 🧩 Easy downstream extension for project-specific stacks
@@ -166,13 +166,10 @@ repos/ros2.repos
 
 ### 📡 Micro XRCE DDS Agent
 
-* Version: `v2.4.2`
+* Version: `v2.4.3`, built from upstream unmodified
 * Installed system-wide
-* Built using a patched `CMakeLists.txt` from:
-
-```bash
-patches/CMakeLists.txt
-```
+* Builds Fast DDS 2.14 on fastcdr 2, the same pair ROS Jazzy ships. Keep them matched: v2.4.2
+  (fastcdr 1) segfaults when it loads ROS's `libfastrtps.so.2.14`.
 
 ---
 
