@@ -7,7 +7,7 @@ FROM ros:jazzy-ros-base-noble
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG DEBIAN_FRONTEND=noninteractive
 ARG CUDA_VERSION=13.2
-ARG UXRCE_AGENT_VERSION=v2.4.2
+ARG UXRCE_AGENT_VERSION=v2.4.3
 
 # Ubuntu 24.04 has no CUDA 12.6 for this board, so the image carries the CUDA 13
 # toolkit plus NVIDIA's cuda-compat-orin user-space driver, which runs CUDA 13 on
@@ -60,12 +60,9 @@ RUN mkdir -p src && \
 
 # Micro XRCE-DDS Agent
 WORKDIR /opt
-COPY patches/CMakeLists.txt /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt
-
 RUN git clone --depth 1 --branch ${UXRCE_AGENT_VERSION} \
       https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && \
     cd Micro-XRCE-DDS-Agent && \
-    cp /opt/Micro-XRCE-DDS-Agent-CMakeLists.txt CMakeLists.txt && \
     mkdir build && \
     cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
@@ -73,7 +70,10 @@ RUN git clone --depth 1 --branch ${UXRCE_AGENT_VERSION} \
     make install && \
     ldconfig && \
     cd /opt && \
-    rm -rf Micro-XRCE-DDS-Agent Micro-XRCE-DDS-Agent-CMakeLists.txt
+    rm -rf Micro-XRCE-DDS-Agent
+
+# v2.4.3 builds Fast DDS 2.14 on fastcdr 2, the same pair ROS Jazzy ships: the agent may load
+# either copy of libfastrtps.so.2.14. v2.4.2 used fastcdr 1 and segfaulted on ROS's copy.
 
     # tests
 RUN source /opt/ros2_base_ws/install/setup.bash && \
