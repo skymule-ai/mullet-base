@@ -18,7 +18,7 @@ This repository currently targets one platform:
 
 The Jetson host must have the NVIDIA Container Toolkit configured. The container uses the host driver stack and includes CUDA development tooling for downstream packages. Ubuntu 24.04 has no CUDA 12.6 for this board, so the image ships the CUDA 13.2 toolkit plus NVIDIA's `cuda-compat-orin` user-space driver (first on `LD_LIBRARY_PATH`), which runs CUDA 13 on the JetPack 6 kernel driver without reflashing.
 
-Images up to `v0.4.0` are ROS 2 Humble (Ubuntu 22.04, CUDA 12.6); images from `v0.5.0` are Jazzy. Downstream images pin a tag, so they move when they choose.
+Images from `v0.5.1` are published here, all ROS 2 Jazzy. Earlier tags (`v0.1.0`–`v0.5.0`, Humble up to `v0.4.0`) were in the `mullet-ros2-base` package, which is deleted. Downstream images pin a tag, so they move when they choose.
 
 This image provides a ready-to-use ROS 2 environment with the PX4 ROS message interfaces and Micro XRCE-DDS Agent already installed, reducing setup time and ensuring reproducible deployments across development machines and robots.
 
@@ -107,7 +107,7 @@ MULLET_ROS_IMAGE_TAG=main docker compose pull ros2-base
 MULLET_ROS_IMAGE_TAG=main docker compose run --rm ros2-base
 ```
 
-For a released image, set `MULLET_ROS_IMAGE_TAG` to an immutable Git tag such as `v0.1.0` (for example, update `.env` or run `export MULLET_ROS_IMAGE_TAG=v0.1.0`).
+For a released image, set `MULLET_ROS_IMAGE_TAG` to an immutable Git tag such as `v0.6.0` (for example, update `.env` or run `export MULLET_ROS_IMAGE_TAG=v0.6.0`).
 
 ## Test a CI image on the Orin
 
@@ -128,9 +128,9 @@ The smoke test validates ROS/PX4 package availability, Micro XRCE-DDS Agent, CUD
 1. Create a feature branch, for example `feat/r36.5-cuda-base`.
 2. Push it to GitHub. CI builds and publishes a test image tagged `sha-<short-commit-sha>`.
 3. Run `./scripts/test-on-orin.sh sha-<short-commit-sha>` on an Orin with the target JetPack version.
-4. Open a pull request only after the Orin smoke test passes. The pull request runs an ARM64 build but does not publish an image.
+4. Open a pull request only after the Orin smoke test passes. Its check is the branch push build from step 2; the pull request does not build again.
 5. Merge the pull request into `main`. CI publishes `:main` and a new immutable SHA image.
-6. Create and push a Git tag such as `v0.1.0` only for an image that has passed hardware validation. CI publishes the matching `:v0.1.0` image.
+6. Create and push a Git tag such as `v0.6.0` only for an image that has passed hardware validation. CI publishes the matching `:v0.6.0` image and moves `:latest` to it.
 
 `main` is a continuously tested integration image. Deploy drones from an immutable release tag, never from `main`.
 
@@ -180,7 +180,7 @@ It is recommended to keep this base image minimal and stable.
 For project-specific dependencies, create a downstream image:
 
 ```Dockerfile
-FROM ghcr.io/skymule-ai/mullet-base:v0.5.1
+FROM ghcr.io/skymule-ai/mullet-base:v0.6.0
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
